@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 
 from dotenv import load_dotenv
+import dj_database_url
 
 
 # ============================================================
@@ -19,7 +20,7 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
-    "django-insecure-change-this-in-production"
+    "django-insecure-change-this-in-production",
 )
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
@@ -28,7 +29,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
+        "127.0.0.1,localhost",
     ).split(",")
     if host.strip()
 ]
@@ -39,8 +40,6 @@ ALLOWED_HOSTS = [
 # ============================================================
 
 INSTALLED_APPS = [
-
-    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,7 +47,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Project Apps
     "blog",
     "accounts",
     "dashboard",
@@ -60,8 +58,10 @@ INSTALLED_APPS = [
 # ============================================================
 
 MIDDLEWARE = [
-
     "django.middleware.security.SecurityMiddleware",
+
+    # Static files in production
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
 
@@ -89,7 +89,6 @@ ROOT_URLCONF = "config.urls"
 # ============================================================
 
 TEMPLATES = [
-
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
 
@@ -100,15 +99,12 @@ TEMPLATES = [
         "APP_DIRS": True,
 
         "OPTIONS": {
-
             "context_processors": [
-
                 "django.template.context_processors.request",
 
                 "django.contrib.auth.context_processors.auth",
 
                 "django.contrib.messages.context_processors.messages",
-
             ],
         },
     },
@@ -126,16 +122,23 @@ WSGI_APPLICATION = "config.wsgi.application"
 # DATABASE
 # ============================================================
 
-DATABASES = {
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 
-    "default": {
-
-        "ENGINE": "django.db.backends.sqlite3",
-
-        "NAME": BASE_DIR / "db.sqlite3",
-
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # ============================================================
@@ -143,27 +146,22 @@ DATABASES = {
 # ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
-
     {
         "NAME":
-        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-
     {
         "NAME":
-        "django.contrib.auth.password_validation.MinimumLengthValidator"
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
-
     {
         "NAME":
-        "django.contrib.auth.password_validation.CommonPasswordValidator"
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
-
     {
         "NAME":
-        "django.contrib.auth.password_validation.NumericPasswordValidator"
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
-
 ]
 
 
@@ -191,6 +189,15 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # ============================================================
@@ -226,36 +233,110 @@ LOGOUT_REDIRECT_URL = "/"
 
 GEMINI_API_KEY = os.getenv(
     "GEMINI_API_KEY",
-    ""
+    "",
 )
 
 GEMINI_MODEL = os.getenv(
     "GEMINI_MODEL",
-    "gemini-3.6-flash"
+    "gemini-3.6-flash",
 )
 
 
 # ============================================================
-# PRODUCTION SECURITY
+# CSRF / SECURITY
 # ============================================================
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "",
+    ).split(",")
+    if origin.strip()
+]
+
 
 SECURE_SSL_REDIRECT = (
     os.getenv(
         "SECURE_SSL_REDIRECT",
-        "False"
-    ).lower() == "true"
+        "False",
+    ).lower()
+    == "true"
 )
+
 
 SESSION_COOKIE_SECURE = (
     os.getenv(
         "SESSION_COOKIE_SECURE",
-        "False"
-    ).lower() == "true"
+        "False",
+    ).lower()
+    == "true"
 )
+
 
 CSRF_COOKIE_SECURE = (
     os.getenv(
         "CSRF_COOKIE_SECURE",
-        "False"
-    ).lower() == "true"
+        "False",
+    ).lower()
+    == "true"
+)
+
+
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https")
+    if os.getenv("SECURE_PROXY_SSL_HEADER", "False").lower()
+    == "true"
+    else None
+)
+
+
+# ============================================================
+# PRODUCTION HSTS
+# ============================================================
+
+SECURE_HSTS_SECONDS = int(
+    os.getenv(
+        "SECURE_HSTS_SECONDS",
+        "0",
+    )
+)
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = (
+    os.getenv(
+        "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+        "False",
+    ).lower()
+    == "true"
+)
+
+SECURE_HSTS_PRELOAD = (
+    os.getenv(
+        "SECURE_HSTS_PRELOAD",
+        "False",
+    ).lower()
+    == "true"
+)
+
+
+# ============================================================
+# X-FRAME / CONTENT SECURITY
+# ============================================================
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+
+# ============================================================
+# EMAIL
+# ============================================================
+
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend",
+)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    "webmaster@localhost",
 )

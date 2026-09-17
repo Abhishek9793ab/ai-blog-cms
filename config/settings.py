@@ -25,6 +25,7 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
@@ -32,6 +33,16 @@ ALLOWED_HOSTS = [
         "127.0.0.1,localhost",
     ).split(",")
     if host.strip()
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "",
+    ).split(",")
+    if origin.strip()
 ]
 
 
@@ -60,7 +71,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # Static files in production
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -190,10 +200,12 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
+
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -243,18 +255,8 @@ GEMINI_MODEL = os.getenv(
 
 
 # ============================================================
-# CSRF / SECURITY
+# HTTPS / PRODUCTION SECURITY
 # ============================================================
-
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "CSRF_TRUSTED_ORIGINS",
-        "",
-    ).split(",")
-    if origin.strip()
-]
-
 
 SECURE_SSL_REDIRECT = (
     os.getenv(
@@ -285,14 +287,17 @@ CSRF_COOKIE_SECURE = (
 
 SECURE_PROXY_SSL_HEADER = (
     ("HTTP_X_FORWARDED_PROTO", "https")
-    if os.getenv("SECURE_PROXY_SSL_HEADER", "False").lower()
+    if os.getenv(
+        "SECURE_PROXY_SSL_HEADER",
+        "False",
+    ).lower()
     == "true"
     else None
 )
 
 
 # ============================================================
-# PRODUCTION HSTS
+# HSTS
 # ============================================================
 
 SECURE_HSTS_SECONDS = int(
@@ -302,6 +307,7 @@ SECURE_HSTS_SECONDS = int(
     )
 )
 
+
 SECURE_HSTS_INCLUDE_SUBDOMAINS = (
     os.getenv(
         "SECURE_HSTS_INCLUDE_SUBDOMAINS",
@@ -309,6 +315,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = (
     ).lower()
     == "true"
 )
+
 
 SECURE_HSTS_PRELOAD = (
     os.getenv(
@@ -320,10 +327,11 @@ SECURE_HSTS_PRELOAD = (
 
 
 # ============================================================
-# X-FRAME / CONTENT SECURITY
+# SECURITY HEADERS
 # ============================================================
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
 X_FRAME_OPTIONS = "DENY"
 
 
@@ -335,6 +343,7 @@ EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
     "django.core.mail.backends.console.EmailBackend",
 )
+
 
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL",

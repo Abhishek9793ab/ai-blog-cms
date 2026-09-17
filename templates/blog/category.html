@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} | AI Blog CMS</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .navbar {
+            background: #111827;
+            padding: 18px 40px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 25px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 36px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 17px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+        }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .no-image {
+            height: 220px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            padding: 22px;
+        }
+
+        .content h2 {
+            font-size: 22px;
+            line-height: 1.4;
+        }
+
+        .content h2 a {
+            color: #111827;
+            text-decoration: none;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .excerpt {
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .empty {
+            background: white;
+            padding: 50px;
+            text-align: center;
+            border-radius: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/">AI Blog CMS</a>
+    <a href="/blogs/">Blogs</a>
+    <a href="/dashboard/">Dashboard</a>
+</nav>
+
+<main class="container">
+
+    <section class="header">
+        <h1>{{ category.name }}</h1>
+
+        {% if category.description %}
+            <p>{{ category.description }}</p>
+        {% else %}
+            <p>
+                Explore all published blogs in the
+                {{ category.name }} category.
+            </p>
+        {% endif %}
+    </section>
+
+    {% if blogs %}
+
+        <section class="grid">
+
+            {% for blog in blogs %}
+
+                <article class="card">
+
+                    {% if blog.featured_image %}
+                        <a href="{{ blog.get_absolute_url }}">
+                            <img
+                                src="{{ blog.featured_image.url }}"
+                                alt="{{ blog.title }}"
+                            >
+                        </a>
+                    {% else %}
+                        <div class="no-image">
+                            No Featured Image
+                        </div>
+                    {% endif %}
+
+                    <div class="content">
+
+                        <h2>
+                            <a href="{{ blog.get_absolute_url }}">
+                                {{ blog.title }}
+                            </a>
+                        </h2>
+
+                        <div class="meta">
+                            By {{ blog.author.username }}
+
+                            {% if blog.published_at %}
+                                • {{ blog.published_at|date:"M d, Y" }}
+                            {% endif %}
+
+                            • {{ blog.views }} views
+                        </div>
+
+                        {% if blog.excerpt %}
+                            <p class="excerpt">
+                                {{ blog.excerpt }}
+                            </p>
+                        {% endif %}
+
+                        <a
+                            href="{{ blog.get_absolute_url }}"
+                            class="btn"
+                        >
+                            Read Article →
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+    {% else %}
+
+        <section class="empty">
+            <h2>No Blogs Found</h2>
+
+            <p>
+                There are currently no published blogs
+                in this category.
+            </p>
+
+            <a href="/blogs/" class="btn">
+                View All Blogs
+            </a>
+        </section>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>

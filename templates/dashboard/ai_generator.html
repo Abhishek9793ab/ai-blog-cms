@@ -1,0 +1,285 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}
+AI Blog Generator | AI Blog CMS
+{% endblock %}
+
+{% block content %}
+
+<section class="py-5 bg-light">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <span class="badge text-bg-primary">
+                <i class="bi bi-stars"></i>
+                Gemini AI
+            </span>
+
+            <h1 class="display-6 fw-bold mt-3">
+                AI Blog Generator
+            </h1>
+
+            <p class="text-muted">
+                Generate SEO-friendly blog content in seconds.
+            </p>
+
+        </div>
+
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body p-4">
+
+                        <form
+                            id="ai-generator-form"
+                            method="post"
+                            action="{% url 'blog:ai_generate' %}"
+                        >
+
+                            {% csrf_token %}
+
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Topic
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="topic"
+                                    class="form-control form-control-lg"
+                                    placeholder="Example: Future of Artificial Intelligence"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Focus Keyword
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="keyword"
+                                    class="form-control"
+                                    placeholder="Example: Artificial Intelligence"
+                                >
+
+                            </div>
+
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Tone
+                                    </label>
+
+                                    <select
+                                        name="tone"
+                                        class="form-select"
+                                    >
+
+                                        <option value="professional">
+                                            Professional
+                                        </option>
+
+                                        <option value="friendly">
+                                            Friendly
+                                        </option>
+
+                                        <option value="educational">
+                                            Educational
+                                        </option>
+
+                                        <option value="technical">
+                                            Technical
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+                                        Length
+                                    </label>
+
+                                    <select
+                                        name="length"
+                                        class="form-select"
+                                    >
+
+                                        <option value="short">
+                                            Short
+                                        </option>
+
+                                        <option
+                                            value="medium"
+                                            selected
+                                        >
+                                            Medium
+                                        </option>
+
+                                        <option value="long">
+                                            Long
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="ai-error"
+                                class="alert alert-danger d-none"
+                            ></div>
+
+
+                            <button
+                                type="submit"
+                                id="generate-ai-btn"
+                                class="btn btn-primary btn-lg w-100"
+                            >
+
+                                <i class="bi bi-stars me-2"></i>
+
+                                Generate Blog
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="ai-result"
+                    class="card border-0 shadow-sm mt-4 d-none"
+                >
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between">
+
+                            <h2 class="h4 fw-bold">
+                                Generated Content
+                            </h2>
+
+                            <a
+                                href="{% url 'blog:create_blog' %}"
+                                class="btn btn-success"
+                            >
+                                Use in Blog
+                            </a>
+
+                        </div>
+
+
+                        <hr>
+
+
+                        <h3 id="generated-title"></h3>
+
+                        <p
+                            id="generated-excerpt"
+                            class="text-muted"
+                        ></p>
+
+
+                        <div class="mb-3">
+
+                            <strong>
+                                Focus Keyword:
+                            </strong>
+
+                            <span
+                                id="generated-keyword"
+                            ></span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <strong>
+                                SEO Title:
+                            </strong>
+
+                            <span
+                                id="generated-seo-title"
+                            ></span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <strong>
+                                Meta Description:
+                            </strong>
+
+                            <span
+                                id="generated-meta"
+                            ></span>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <strong>
+                                Tags:
+                            </strong>
+
+                            <div
+                                id="generated-tags"
+                                class="mt-2"
+                            ></div>
+
+                        </div>
+
+
+                        <hr>
+
+
+                        <div id="generated-content"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{% static 'js/ai_generator.js' %}"></script>
+
+{% endblock %}

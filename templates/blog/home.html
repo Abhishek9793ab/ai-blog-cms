@@ -1,0 +1,576 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+AI Blog CMS | Learn, Create & Grow
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+
+    <div class="hero-content">
+
+        <span class="hero-badge">
+            <i class="bi bi-stars"></i>
+            AI-Powered Publishing Platform
+        </span>
+
+        <h1>
+            Create Smarter.
+            <span>Publish Better.</span>
+        </h1>
+
+        <p>
+            Discover useful insights, technology trends, development
+            tutorials and AI-powered content created for modern learners
+            and professionals.
+        </p>
+
+        <div class="hero-actions">
+
+            <a href="{% url 'blog:blog_list' %}" class="btn-primary-custom">
+                Explore Articles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+            {% if user.is_authenticated %}
+
+                <a href="{% url 'blog:create_blog' %}" class="btn-outline-custom">
+                    <i class="bi bi-plus-lg"></i>
+                    Create Blog
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'accounts:register' %}" class="btn-outline-custom">
+                    Get Started
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        <div class="hero-stats">
+
+            <div class="hero-stat">
+                <strong>{{ blogs|length }}+</strong>
+                <span>Latest Articles</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>{{ categories|length }}+</strong>
+                <span>Categories</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>AI</strong>
+                <span>Powered Writing</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-visual">
+
+        <div class="ai-card-main">
+
+            <div class="ai-card-top">
+
+                <div class="ai-icon">
+                    <i class="bi bi-stars"></i>
+                </div>
+
+                <div>
+                    <small>AI CONTENT ENGINE</small>
+                    <h5>Smart Blog Generator</h5>
+                </div>
+
+            </div>
+
+
+            <div class="ai-card-body">
+
+                <div class="ai-line large"></div>
+                <div class="ai-line medium"></div>
+                <div class="ai-line small"></div>
+
+                <div class="ai-writing-box">
+
+                    <i class="bi bi-magic"></i>
+
+                    <div>
+                        <strong>SEO Optimized</strong>
+                        <span>Title · Meta · Keywords</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="ai-card-footer">
+
+                <span>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Ready to publish
+                </span>
+
+                <span>
+                    SEO Score
+                    <strong>92</strong>
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="floating-card floating-card-one">
+
+            <i class="bi bi-graph-up-arrow"></i>
+
+            <div>
+                <strong>SEO Growth</strong>
+                <small>Optimized Content</small>
+            </div>
+
+        </div>
+
+
+        <div class="floating-card floating-card-two">
+
+            <i class="bi bi-lightning-charge-fill"></i>
+
+            <div>
+                <strong>AI Generated</strong>
+                <small>In seconds</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% if featured %}
+
+<section class="section-container">
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                FEATURED
+            </span>
+
+            <h2>
+                Featured Articles
+            </h2>
+
+            <p>
+                Hand-picked articles worth reading.
+            </p>
+
+        </div>
+
+        <a href="{% url 'blog:blog_list' %}" class="view-all-link">
+            View all
+            <i class="bi bi-arrow-right"></i>
+        </a>
+
+    </div>
+
+
+    <div class="featured-grid">
+
+        {% for blog in featured %}
+
+        <article class="featured-card">
+
+            {% if blog.featured_image %}
+
+                <div class="featured-image">
+
+                    <img
+                        src="{{ blog.featured_image.url }}"
+                        alt="{{ blog.title }}"
+                    >
+
+                </div>
+
+            {% else %}
+
+                <div class="featured-image image-placeholder">
+
+                    <i class="bi bi-journal-richtext"></i>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="featured-content">
+
+                {% if blog.category %}
+
+                    <span class="category-pill">
+                        {{ blog.category.name }}
+                    </span>
+
+                {% endif %}
+
+
+                <h3>
+
+                    <a href="{{ blog.get_absolute_url }}">
+                        {{ blog.title }}
+                    </a>
+
+                </h3>
+
+
+                <p>
+                    {{ blog.excerpt|truncatechars:150 }}
+                </p>
+
+
+                <div class="blog-meta">
+
+                    <span>
+                        <i class="bi bi-person"></i>
+                        {{ blog.author.username }}
+                    </span>
+
+                    <span>
+                        <i class="bi bi-eye"></i>
+                        {{ blog.views }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<section class="section-container">
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                DISCOVER
+            </span>
+
+            <h2>
+                Latest Articles
+            </h2>
+
+            <p>
+                Fresh ideas, tutorials and insights.
+            </p>
+
+        </div>
+
+        <a href="{% url 'blog:blog_list' %}" class="view-all-link">
+            Browse all
+            <i class="bi bi-arrow-right"></i>
+        </a>
+
+    </div>
+
+
+    {% if blogs %}
+
+    <div class="latest-grid">
+
+        {% for blog in blogs %}
+
+        <article class="blog-card">
+
+            {% if blog.featured_image %}
+
+                <div class="blog-card-image">
+
+                    <img
+                        src="{{ blog.featured_image.url }}"
+                        alt="{{ blog.title }}"
+                        loading="lazy"
+                    >
+
+                </div>
+
+            {% else %}
+
+                <div class="blog-card-image image-placeholder">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="blog-card-content">
+
+                <div class="card-top-row">
+
+                    {% if blog.category %}
+
+                        <span class="category-pill">
+                            {{ blog.category.name }}
+                        </span>
+
+                    {% endif %}
+
+                    <span class="reading-time">
+                        <i class="bi bi-clock"></i>
+                        5 min read
+                    </span>
+
+                </div>
+
+
+                <h3>
+
+                    <a href="{{ blog.get_absolute_url }}">
+                        {{ blog.title|truncatechars:70 }}
+                    </a>
+
+                </h3>
+
+
+                <p>
+                    {{ blog.excerpt|default:"Discover this useful article and explore the latest insights."|truncatechars:120 }}
+                </p>
+
+
+                <div class="blog-card-footer">
+
+                    <div class="author-info">
+
+                        <div class="author-avatar">
+
+                            {{ blog.author.username|first|upper }}
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                {{ blog.author.username }}
+                            </strong>
+
+                            <small>
+                                {% if blog.published_at %}
+                                    {{ blog.published_at|date:"M d, Y" }}
+                                {% else %}
+                                    {{ blog.created_at|date:"M d, Y" }}
+                                {% endif %}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{{ blog.get_absolute_url }}"
+                        class="read-more"
+                    >
+
+                        <i class="bi bi-arrow-up-right"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+
+            <i class="bi bi-journal-plus"></i>
+
+        </div>
+
+        <h3>
+            No articles yet
+        </h3>
+
+        <p>
+            Start creating your first AI-powered SEO blog.
+        </p>
+
+        {% if user.is_authenticated %}
+
+            <a
+                href="{% url 'blog:create_blog' %}"
+                class="btn-primary-custom"
+            >
+                Create Your First Blog
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        {% else %}
+
+            <a
+                href="{% url 'accounts:login' %}"
+                class="btn-primary-custom"
+            >
+                Login to Continue
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+{% if categories %}
+
+<section class="category-section">
+
+    <div class="section-container">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    EXPLORE
+                </span>
+
+                <h2>
+                    Browse by Category
+                </h2>
+
+                <p>
+                    Find content based on your interests.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            {% for category in categories %}
+
+            <a
+                href="{% url 'blog:category' category.slug %}"
+                class="category-card"
+            >
+
+                <div class="category-icon">
+
+                    <i class="bi bi-grid-1x2-fill"></i>
+
+                </div>
+
+                <div>
+
+                    <h4>
+                        {{ category.name }}
+                    </h4>
+
+                    <span>
+                        Explore articles
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<section class="cta-section">
+
+    <div class="cta-content">
+
+        <div class="cta-icon">
+
+            <i class="bi bi-stars"></i>
+
+        </div>
+
+        <span class="section-label">
+            AI POWERED
+        </span>
+
+        <h2>
+            Turn Your Ideas Into
+            <span>SEO-Ready Content</span>
+        </h2>
+
+        <p>
+            Generate structured, readable and SEO-friendly blog content
+            with the power of AI.
+        </p>
+
+
+        {% if user.is_authenticated %}
+
+            <a
+                href="{% url 'dashboard:ai_generator' %}"
+                class="btn-light-custom"
+            >
+                Open AI Generator
+                <i class="bi bi-magic"></i>
+            </a>
+
+        {% else %}
+
+            <a
+                href="{% url 'accounts:register' %}"
+                class="btn-light-custom"
+            >
+                Start Creating
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,344 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+Blogs | AI Blog CMS
+{% endblock %}
+
+{% block content %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <span class="badge text-bg-light border px-3 py-2">
+                <i class="bi bi-stars"></i>
+                AI Blog CMS
+            </span>
+
+            <h1 class="display-5 fw-bold mt-3">
+                Explore Articles
+            </h1>
+
+            <p class="lead text-muted">
+                Discover tutorials, technology trends,
+                AI insights and useful development content.
+            </p>
+
+        </div>
+
+
+        <div class="card border-0 shadow-sm mb-5">
+
+            <div class="card-body p-4">
+
+                <form
+                    method="get"
+                    action="{% url 'blog:blog_list' %}"
+                >
+
+                    <div class="input-group input-group-lg">
+
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input
+                            type="search"
+                            name="q"
+                            class="form-control"
+                            placeholder="Search articles..."
+                            value="{{ query }}"
+                        >
+
+                        <button
+                            class="btn btn-primary px-4"
+                            type="submit"
+                        >
+                            Search
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        {% if query %}
+
+            <div class="alert alert-light border mb-4">
+
+                <i class="bi bi-search"></i>
+
+                Search results for:
+
+                <strong>
+                    {{ query }}
+                </strong>
+
+            </div>
+
+        {% endif %}
+
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                {% if blogs %}
+
+                    <div class="row g-4">
+
+                        {% for blog in blogs %}
+
+                            <div class="col-md-6">
+
+                                <article class="card h-100 border-0 shadow-sm overflow-hidden">
+
+                                    {% if blog.featured_image %}
+
+                                        <img
+                                            src="{{ blog.featured_image.url }}"
+                                            class="card-img-top"
+                                            style="height:220px;object-fit:cover;"
+                                            alt="{{ blog.title }}"
+                                        >
+
+                                    {% else %}
+
+                                        <div
+                                            class="d-flex align-items-center justify-content-center bg-light"
+                                            style="height:220px;"
+                                        >
+
+                                            <i
+                                                class="bi bi-stars fs-1 text-primary"
+                                            ></i>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="card-body p-4">
+
+                                        {% if blog.category %}
+
+                                            <a
+                                                href="{% url 'blog:category' blog.category.slug %}"
+                                                class="badge text-bg-light border text-decoration-none"
+                                            >
+                                                {{ blog.category.name }}
+                                            </a>
+
+                                        {% endif %}
+
+
+                                        <h2 class="h4 fw-bold mt-3">
+
+                                            <a
+                                                href="{{ blog.get_absolute_url }}"
+                                                class="text-decoration-none text-dark"
+                                            >
+                                                {{ blog.title }}
+                                            </a>
+
+                                        </h2>
+
+
+                                        <p class="text-muted">
+
+                                            {% if blog.excerpt %}
+
+                                                {{ blog.excerpt|truncatewords:25 }}
+
+                                            {% else %}
+
+                                                Read this article to learn
+                                                more about {{ blog.title }}.
+
+                                            {% endif %}
+
+                                        </p>
+
+
+                                        <div class="small text-muted mb-3">
+
+                                            <i class="bi bi-person"></i>
+                                            {{ blog.author.username }}
+
+                                            &nbsp; • &nbsp;
+
+                                            <i class="bi bi-calendar"></i>
+                                            {{ blog.created_at|date:"M d, Y" }}
+
+                                            &nbsp; • &nbsp;
+
+                                            <i class="bi bi-eye"></i>
+                                            {{ blog.views }}
+
+                                        </div>
+
+
+                                        <a
+                                            href="{{ blog.get_absolute_url }}"
+                                            class="btn btn-outline-primary"
+                                        >
+                                            Read Article
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+
+                                    </div>
+
+                                </article>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="text-center py-5">
+
+                        <div class="mb-3">
+
+                            <i
+                                class="bi bi-journal-x display-1 text-muted"
+                            ></i>
+
+                        </div>
+
+                        <h2>
+                            No Published Blogs Yet
+                        </h2>
+
+                        <p class="text-muted">
+                            Create your first article and publish it.
+                        </p>
+
+                        {% if user.is_authenticated %}
+
+                            <a
+                                href="{% url 'blog:create_blog' %}"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-plus-lg"></i>
+                                Create Blog
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'accounts:register' %}"
+                                class="btn btn-primary"
+                            >
+                                Create Account
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-body p-4">
+
+                        <h3 class="h5 fw-bold mb-3">
+
+                            <i class="bi bi-grid"></i>
+                            Categories
+
+                        </h3>
+
+
+                        {% for category in categories %}
+
+                            <a
+                                href="{% url 'blog:category' category.slug %}"
+                                class="d-flex justify-content-between align-items-center border-bottom py-3 text-decoration-none text-dark"
+                            >
+
+                                <span>
+                                    {{ category.name }}
+                                </span>
+
+                                <i class="bi bi-chevron-right"></i>
+
+                            </a>
+
+                        {% empty %}
+
+                            <p class="text-muted mb-0">
+                                No categories yet.
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body p-4">
+
+                        <h3 class="h5 fw-bold">
+
+                            <i class="bi bi-stars text-primary"></i>
+                            AI Blog Generator
+
+                        </h3>
+
+                        <p class="text-muted">
+                            Generate SEO-friendly articles
+                            using Gemini AI.
+                        </p>
+
+
+                        {% if user.is_authenticated %}
+
+                            <a
+                                href="{% url 'dashboard:ai_generator' %}"
+                                class="btn btn-primary w-100"
+                            >
+                                Open AI Generator
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'accounts:login' %}"
+                                class="btn btn-primary w-100"
+                            >
+                                Login to Use AI
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

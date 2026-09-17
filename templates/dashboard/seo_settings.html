@@ -1,0 +1,130 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+SEO Audit | AI Blog CMS
+{% endblock %}
+
+{% block content %}
+
+<section class="py-5 bg-light">
+
+<div class="container-fluid">
+
+<div class="mb-4">
+
+<h1 class="fw-bold">
+SEO Audit
+</h1>
+
+<p class="text-muted">
+Check title, meta description, keyword,
+content depth and other SEO signals.
+</p>
+
+</div>
+
+
+<div class="row g-4">
+
+{% for blog, audit in audits %}
+
+<div class="col-lg-6">
+
+<div class="card border-0 shadow-sm h-100">
+
+<div class="card-body p-4">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<h2 class="h5 fw-bold">
+{{ blog.title }}
+</h2>
+
+<span class="text-muted">
+{{ blog.category|default:"No category" }}
+</span>
+
+</div>
+
+
+<div class="text-center">
+
+<div class="display-6 fw-bold text-primary">
+{{ audit.score }}
+</div>
+
+<small class="text-muted">
+SEO Score
+</small>
+
+</div>
+
+</div>
+
+
+<hr>
+
+
+{% for name, score, detail in audit.checks %}
+
+<div class="d-flex justify-content-between border-bottom py-2">
+
+<span>
+{{ name }}
+</span>
+
+<span>
+
+{% if score >= 10 %}
+
+<span class="badge text-bg-success">
+{{ score }}
+</span>
+
+{% elif score > 0 %}
+
+<span class="badge text-bg-warning">
+{{ score }}
+</span>
+
+{% else %}
+
+<span class="badge text-bg-danger">
+0
+</span>
+
+{% endif %}
+
+</span>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="col-12">
+
+<div class="alert alert-light border">
+No blogs available for SEO audit.
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}
